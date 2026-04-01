@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosk Vision — Accessible AI Kiosk</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+<!-- Google MediaPipe Computer Vision -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="app.js" defer></script>
+</head>
+<body class="normal-mode">
+<div id="gaze-cursor" aria-hidden="true"><div class="ring"></div></div>
+
+<!-- CV Video Feed Overlay -->
+<div id="cv-container" aria-hidden="true" style="display:none">
+  <video id="webcam" autoplay playsinline style="display:none"></video>
+  <canvas id="output_canvas"></canvas>
+  <div class="cv-status">Initializing Neural Net...</div>
+</div>
+
+<!-- Screen Reader Live Announcements -->
+<div aria-live="polite" class="sr-only" id="a11y-announcer"></div>
+
+<!-- Accessibility Hub Banner -->
+<div class="a11y-banner" aria-hidden="true">
+  Accessibility: Press <strong>SPACEBAR</strong> for Voice · Look directly at camera for 4s for <strong>Hands-free Tracking</strong>
+</div>
+
+<div class="shell">
+<header>
+  <div class="logo">
+    <div class="logo-icon" aria-hidden="true">👁️</div>
+    <div class="logo-text">Kiosk<span>Vision</span></div>
+  </div>
+  <div class="badge">HACKATHON DEMO</div>
+</header>
+
+<main>
+  <section aria-label="Accessibility Mode Selection">
+    <div class="mode-label" id="mode-label">Select Accessibility Mode</div>
+    <div class="mode-tabs" role="tablist" aria-labelledby="mode-label">
+      <button class="mode-tab active" role="tab" aria-selected="true" data-mode="normal" aria-label="Standard Mode"><span class="dot dot-normal"></span>Standard</button>
+      <button class="mode-tab" role="tab" aria-selected="false" data-mode="blind" aria-label="Visually Impaired Mode"><span class="dot dot-blind"></span>Visually Impaired</button>
+      <button class="mode-tab" role="tab" aria-selected="false" data-mode="cognitive" aria-label="Cognitive Support Mode"><span class="dot dot-cognitive"></span>Cognitive Support</button>
+      <button class="mode-tab" role="tab" aria-selected="false" data-mode="motor" aria-label="Motor Impaired Mode"><span class="dot dot-motor"></span>Motor Impaired</button>
+    </div>
+  </section>
+
+  <div class="main-grid">
+    <section class="kiosk-wrap" id="kiosk" aria-label="Kiosk Interface">
+      <header class="kiosk-topbar">
+        <h1 class="kiosk-topbar-title">Self-Service Kiosk</h1>
+        <div class="kiosk-status"><div class="status-dot"></div>AI Assistant Active</div>
+      </header>
+      <div class="kiosk-body">
+
+        <!-- ══ LANDING PAGE / SCREENSAVER ══ -->
+        <article class="screen active" id="screen-landing" aria-label="Welcome Screen">
+          <div class="landing-logo" style="width: 120px; height: 120px; border-radius: 32px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 64px; margin: 0 auto 40px; box-shadow: 0 0 60px rgba(108,99,255,0.4); animation: float 4s ease-in-out infinite;">👁️</div>
+          <h1 style="font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; margin-bottom: 20px; background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">KioskVision AI</h1>
+          <p style="font-size: 20px; color: var(--muted); max-width: 500px; margin: 0 auto 50px; line-height: 1.6;">Universal, accessible, zero-touch self-service. Empowering everyone to interact independently.</p>
+          
+          <button class="btn btn-primary gaze-el" data-label="Start Kiosk" data-action="go-screen" data-target="screen-home" style="padding: 22px 55px; font-size: 22px; border-radius: 50px; box-shadow: 0 10px 40px rgba(108,99,255,0.4); width: auto; font-family:'Syne',sans-serif; letter-spacing: 0.5px; animation: pulse 2s infinite;">
+            <div class="gaze-bar"></div>✨ Tap or Hover to Begin
+          </button>
+          
+          <div class="landing-voice-hint" style="margin-top:40px;font-size:18px;color:var(--muted);display:flex;align-items:center;gap:12px;opacity:0.8;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:var(--blind);font-size:16px;">🎤</span> <span>Or simply say <strong>"Start"</strong></span>
+          </div>
+        </article>
+
+        <!-- ══ HOME / DEPLOYMENT SCREEN ══ -->
+        <article class="screen" id="screen-home" aria-label="Home Screen">
+           <h2 class="section-title" style="text-align:center; padding-top:20px;">Select Deployment Mode</h2>
+           <p class="section-sub" style="text-align:center;">Where are you deploying KioskVision?</p>
+           
+           <div class="menu-grid" style="margin-top: 40px; margin-bottom: 40px;">
+             <button class="menu-item gaze-el" data-label="Food and Beverage" data-action="go-screen" data-target="screen-menu">
+               <div class="gaze-bar"></div>
+               <span class="menu-item-emoji" aria-hidden="true" style="font-size:48px;text-align:center;display:block;">🍔</span>
+               <div class="menu-item-name" style="text-align:center;font-size:18px;">Food &amp; Beverage</div>
+             </button>
+             <button class="menu-item gaze-el" data-label="Transit and Railway" data-action="go-screen" data-target="screen-transit">
+               <div class="gaze-bar"></div>
+               <span class="menu-item-emoji" aria-hidden="true" style="font-size:48px;text-align:center;display:block;">🚇</span>
+               <div class="menu-item-name" style="text-align:center;font-size:18px;">Transit &amp; Railway</div>
+             </button>
+           </div>
+        </article>
+
+        <!-- ══ MENU ══ -->
+        <article class="screen" id="screen-menu" aria-label="Menu Screen">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true">
+              <div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div>
+            </div>
+            <div class="voice-status-text" id="voice-status">Click 🎤 and speak your order</div>
+          </div>
+          <div class="voice-hint">💬 Say: <strong>"coffee"</strong>, <strong>"sandwich"</strong>, <strong>"juice"</strong>, or <strong>"snack box"</strong> to add items<br>Say <strong>"checkout"</strong> or <strong>"go to cart"</strong> to proceed</div>
+          <div class="gaze-hint">👁️ Hover over any item or button for <strong>1.5 seconds</strong> to activate — no clicking needed</div>
+          
+          <div id="mode-info-menu" class="mode-info-bar normal"></div>
+          
+          <div class="step-counter">Step 1 of 3 — Choose your item</div>
+          <div class="simplified-guide">👆 Tap or hover any item below</div>
+          
+          <h2 class="section-title">What would you like?</h2>
+          <p class="section-sub">Browse items, use voice commands, or let your gaze do the work.</p>
+
+          <div class="menu-grid" id="menu-grid">
+            <button class="menu-item gaze-el" data-label="Coffee" data-action="add-item" data-id="coffee" data-name="Coffee" data-emoji="☕" data-price="120">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">☕</span>
+              <div class="menu-item-name">Coffee</div>
+              <div class="menu-item-desc">Hot, freshly brewed</div>
+              <div class="menu-item-price">₹120</div>
+            </button>
+            <button class="menu-item gaze-el" data-label="Sandwich" data-action="add-item" data-id="sandwich" data-name="Sandwich" data-emoji="🥪" data-price="180">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🥪</span>
+              <div class="menu-item-name">Sandwich</div>
+              <div class="menu-item-desc">Veggie &amp; cheese</div>
+              <div class="menu-item-price">₹180</div>
+            </button>
+            <button class="menu-item gaze-el" data-label="Juice" data-action="add-item" data-id="juice" data-name="Fresh Juice" data-emoji="🍹" data-price="90">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🍹</span>
+              <div class="menu-item-name">Fresh Juice</div>
+              <div class="menu-item-desc">Orange or mixed</div>
+              <div class="menu-item-price">₹90</div>
+            </button>
+            <button class="menu-item gaze-el" data-label="Snack Box" data-action="add-item" data-id="snackbox" data-name="Snack Box" data-emoji="🍱" data-price="220">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🍱</span>
+              <div class="menu-item-name">Snack Box</div>
+              <div class="menu-item-desc">Assorted bites</div>
+              <div class="menu-item-price">₹220</div>
+            </button>
+          </div>
+
+          <button class="btn btn-primary gaze-el" data-label="Go to cart" data-action="go-screen" data-target="screen-cart">
+            <div class="gaze-bar"></div>🛒 View Cart &amp; Checkout
+          </button>
+          <button class="btn btn-outline gaze-el" data-label="Back to home" data-action="go-screen" data-target="screen-home" style="margin-top: 15px;">
+            <div class="gaze-bar"></div>← Back to Home
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT DASHBOARD ══ -->
+        <article class="screen transit-mode" id="screen-transit" aria-label="Transit Dashboard">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true">
+              <div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div>
+            </div>
+            <div class="voice-status-text" id="voice-status-transit">Click 🎤 and speak your command</div>
+          </div>
+          <div class="voice-hint">💬 Say: <strong>"Ticket to Central Station"</strong>, <strong>"Recharge 500"</strong>, or <strong>"Emergency"</strong></div>
+          <div class="gaze-hint">👁️ Hover over any option for <strong>1.5 seconds</strong> to activate</div>
+          
+          <div id="mode-info-transit" class="mode-info-bar normal"></div>
+          
+          <h2 class="section-title">TransitOS Dashboard</h2>
+          <p class="section-sub">Select a service or use voice commands to proceed.</p>
+
+          <div class="transit-grid">
+            <button class="menu-item transit-card gaze-el" data-label="Buy Ticket" data-action="go-screen" data-target="screen-transit-ticket">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🎫</span>
+              <div class="menu-item-name">Buy Ticket</div>
+              <div class="menu-item-desc">Select destination</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Recharge Card" data-action="go-screen" data-target="screen-transit-recharge">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">💳</span>
+              <div class="menu-item-name">Recharge Card</div>
+              <div class="menu-item-desc">Top-up ₹100, ₹200, ₹500</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Train Status" data-action="go-screen" data-target="screen-transit-status">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🕒</span>
+              <div class="menu-item-name">Live Train Status</div>
+              <div class="menu-item-desc">Check PNR &amp; timings</div>
+            </button>
+            <button class="menu-item transit-card emergency-card gaze-el" data-label="Emergency Assistance Request" data-action="transit-action">
+              <div class="gaze-bar" style="background: white;"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🚨</span>
+              <div class="menu-item-name" style="color:white;">Emergency SOS</div>
+              <div class="menu-item-desc" style="color:rgba(255,255,255,0.8);">Call wheelchair/staff</div>
+            </button>
+          </div>
+          <button class="btn btn-outline gaze-el" data-label="Back to home" data-action="go-screen" data-target="screen-home" style="margin-top: 15px;">
+            <div class="gaze-bar"></div>← Back to Home
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT: TICKET DESTINATIONS ══ -->
+        <article class="screen transit-mode" id="screen-transit-ticket" aria-label="Ticket Destinations">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true"><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div></div>
+            <div class="voice-status-text" id="voice-status-t-ticket">Click 🎤 and speak destination</div>
+          </div>
+          <div class="voice-hint">💬 Say: <strong>"Mumbai"</strong> or <strong>"Howrah"</strong></div>
+          <h2 class="section-title">Select Destination from NDLS</h2>
+          <div class="transit-grid" style="margin-top:20px;">
+            <button class="menu-item transit-card gaze-el" data-label="Mumbai" data-action="transit-set-dest" data-dest="Mumbai Central" data-code="MMCT">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🌊</span>
+              <div class="menu-item-name">Mumbai (MMCT)</div>
+              <div class="menu-item-desc">Rajdhani Route</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Kolkata" data-action="transit-set-dest" data-dest="Howrah Jn" data-code="HWH">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🌉</span>
+              <div class="menu-item-name">Kolkata (HWH)</div>
+              <div class="menu-item-desc">Shatabdi Route</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Bengaluru" data-action="transit-set-dest" data-dest="KSR Bengaluru" data-code="SBC">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">💻</span>
+              <div class="menu-item-name">Bengaluru (SBC)</div>
+              <div class="menu-item-desc">Express Route</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Chennai" data-action="transit-set-dest" data-dest="Chennai Central" data-code="MAS">
+              <div class="gaze-bar"></div>
+              <span class="menu-item-emoji" aria-hidden="true">🏛️</span>
+              <div class="menu-item-name">Chennai (MAS)</div>
+              <div class="menu-item-desc">Duronto Route</div>
+            </button>
+          </div>
+          <button class="btn btn-outline gaze-el" data-label="Back" data-action="go-screen" data-target="screen-transit" style="margin-top: 5px;">
+            <div class="gaze-bar"></div>← Cancel
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT: SELECT CLASS ══ -->
+        <article class="screen transit-mode" id="screen-transit-class" aria-label="Select Class">
+          <h2 class="section-title">Select Coach Class</h2>
+          <p class="section-sub">Choose your preferred seating/sleeper class</p>
+          <div class="transit-grid" style="margin-top:20px;">
+            <button class="menu-item transit-card gaze-el" data-label="Sleeper" data-action="transit-set-class" data-class="Sleeper (SL)" data-price="600">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">🛏️</span>
+              <div class="menu-item-name">Sleeper (SL)</div>
+              <div class="menu-item-desc" style="color:var(--accent2);font-weight:bold;font-size:16px;">₹600</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="AC 3 Tier" data-action="transit-set-class" data-class="AC 3 Tier (3A)" data-price="1500">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">❄️</span>
+              <div class="menu-item-name">AC 3 Tier (3A)</div>
+              <div class="menu-item-desc" style="color:var(--accent2);font-weight:bold;font-size:16px;">₹1500</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="AC 2 Tier" data-action="transit-set-class" data-class="AC 2 Tier (2A)" data-price="2200">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">❄️</span>
+              <div class="menu-item-name">AC 2 Tier (2A)</div>
+              <div class="menu-item-desc" style="color:var(--accent2);font-weight:bold;font-size:16px;">₹2200</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Vande Bharat" data-action="transit-set-class" data-class="Vande Bharat (CC)" data-price="2800">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">🚄</span>
+              <div class="menu-item-name">Vande Bharat (CC)</div>
+              <div class="menu-item-desc" style="color:var(--accent2);font-weight:bold;font-size:16px;">₹2800</div>
+            </button>
+          </div>
+          <button class="btn btn-outline gaze-el" data-label="Back" data-action="go-screen" data-target="screen-transit-ticket" style="margin-top: 5px;">
+            <div class="gaze-bar"></div>← Back
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT: PASSENGER DETAILS ══ -->
+        <article class="screen transit-mode" id="screen-transit-passenger" aria-label="Passenger Details">
+          <h2 class="section-title">Passenger Details</h2>
+          <p class="section-sub">Speak your details or use your pre-linked IRCTC ID</p>
+          <div class="transit-grid" style="margin-top:20px;">
+            <button class="menu-item transit-card gaze-el" data-action="transit-pay-final" data-type="irctc" style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.25)); border:1.5px solid #10b981;">
+               <div class="gaze-bar"></div>
+               <span class="menu-item-emoji">🇮🇳</span>
+               <div class="menu-item-name" style="color:#10b981; font-size:18px;">Fetch IRCTC Profile</div>
+               <div class="menu-item-desc">Tap Aadhaar / NFC Card</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" id="passenger-voice-btn" data-action="transit-pay-voice">
+               <div class="gaze-bar"></div>
+               <span class="menu-item-emoji">🎙️</span>
+               <div class="menu-item-name" style="font-size:18px;">Voice Input</div>
+               <div class="menu-item-desc">Speak Name &amp; Age</div>
+            </button>
+          </div>
+          <button class="btn btn-outline gaze-el" data-label="Back" data-action="go-screen" data-target="screen-transit-class" style="margin-top: 15px;">
+            <div class="gaze-bar"></div>← Cancel
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT: RECHARGE ══ -->
+        <article class="screen transit-mode" id="screen-transit-recharge" aria-label="Recharge Card">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true"><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div></div>
+            <div class="voice-status-text" id="voice-status-t-recharge">Click 🎤 and speak amount</div>
+          </div>
+          <div class="voice-hint">💬 Say: <strong>"100"</strong>, <strong>"200"</strong>, or <strong>"500"</strong></div>
+          <h2 class="section-title">Select Recharge Amount</h2>
+          <div class="transit-grid" style="margin-top:20px;">
+            <button class="menu-item transit-card gaze-el" data-label="Recharge 100" data-action="transit-pay" data-name="IRCTC Smart Card Top-up" data-price="100">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">💰</span>
+              <div class="menu-item-name">₹100</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Recharge 200" data-action="transit-pay" data-name="IRCTC Smart Card Top-up" data-price="200">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">💶</span>
+              <div class="menu-item-name">₹200</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Recharge 500" data-action="transit-pay" data-name="IRCTC Smart Card Top-up" data-price="500">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">💎</span>
+              <div class="menu-item-name">₹500</div>
+            </button>
+            <button class="menu-item transit-card gaze-el" data-label="Custom Amount" data-action="transit-pay" data-name="IRCTC Smart Card Top-up" data-price="1000">
+              <div class="gaze-bar"></div><span class="menu-item-emoji" aria-hidden="true">💳</span>
+              <div class="menu-item-name">Max (₹1000)</div>
+            </button>
+          </div>
+          <button class="btn btn-outline gaze-el" data-label="Back" data-action="go-screen" data-target="screen-transit" style="margin-top: 5px;">
+            <div class="gaze-bar"></div>← Cancel
+          </button>
+        </article>
+
+        <!-- ══ TRANSIT: LIVE STATUS ══ -->
+        <article class="screen transit-mode" id="screen-transit-status" aria-label="Train Status">
+           <h2 class="section-title">Live Train Status</h2>
+           <p class="section-sub">Real-time arrivals for New Delhi (NDLS)</p>
+           
+           <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin:20px 0;">
+             <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
+               <div><strong style="color:var(--text);font-size:16px;">12952 - Mumbai Rajdhani</strong><div style="color:var(--muted);font-size:12px;">Platform 3</div></div>
+               <div style="color:var(--accent2);font-weight:bold;">Arriving in 15 min</div>
+             </div>
+             <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
+               <div><strong style="color:var(--text);font-size:16px;">12004 - Lucknow Shatabdi</strong><div style="color:var(--muted);font-size:12px;">Platform 1</div></div>
+               <div style="color:#eab308;font-weight:bold;">Arriving in 30 min</div>
+             </div>
+             <div style="display:flex;justify-content:space-between;">
+               <div><strong style="color:var(--text);font-size:16px;">22436 - Vande Bharat Exp</strong><div style="color:var(--muted);font-size:12px;">Platform 4</div></div>
+               <div style="color:#ef4444;font-weight:bold;">Delayed (45m)</div>
+             </div>
+           </div>
+           
+           <button class="btn btn-outline gaze-el" data-label="Back" data-action="go-screen" data-target="screen-transit" style="margin-top: 15px;">
+            <div class="gaze-bar"></div>← Back to Railway Menu
+          </button>
+        </article>
+
+        <!-- ══ CART ══ -->
+        <article class="screen" id="screen-cart" aria-label="Cart Screen">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true">
+              <div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div>
+            </div>
+            <div class="voice-status-text" id="voice-status-cart">Click 🎤 and speak</div>
+          </div>
+          <div class="voice-hint">💬 Say <strong>"confirm"</strong> or <strong>"pay"</strong> to proceed · Say <strong>"back"</strong> to add more items</div>
+          <div class="gaze-hint">👁️ Hover any button for 1.5s to activate</div>
+          
+          <div class="step-counter">Step 2 of 3 — Review your order</div>
+          <div class="simplified-guide">✅ Check your items below</div>
+          
+          <nav aria-label="Breadcrumb" class="breadcrumb">
+            <span class="breadcrumb-step done">Menu</span><span aria-hidden="true">›</span>
+            <span class="breadcrumb-step current" aria-current="step">Cart</span><span aria-hidden="true">›</span>
+            <span class="breadcrumb-step">Payment</span>
+          </nav>
+          
+          <h2 class="section-title" style="font-size:22px;margin-bottom:16px">Your Order</h2>
+          <div id="cart-items" aria-live="polite"></div>
+          
+          <div class="cart-total"><span>Total</span><span id="cart-total-price" style="color:var(--accent2)">₹0</span></div>
+          
+          <button class="btn btn-pay gaze-el" data-label="Proceed to payment" data-action="go-screen" data-target="screen-payment" style="margin-top:20px">
+            <div class="gaze-bar"></div>Proceed to Payment →
+          </button>
+          <button class="btn btn-outline gaze-el" data-label="Back to menu" data-action="go-screen" data-target="screen-menu">
+            <div class="gaze-bar"></div>← Add More Items
+          </button>
+        </article>
+
+        <!-- ══ PAYMENT ══ -->
+        <article class="screen" id="screen-payment" aria-label="Payment Screen">
+          <div class="voice-input-bar">
+            <button class="mic-btn" aria-label="Toggle Microphone" data-action="toggle-mic">🎤</button>
+            <div class="voice-waves" aria-hidden="true">
+              <div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div><div class="voice-wave"></div>
+            </div>
+            <div class="voice-status-text" id="voice-status-pay">Click 🎤 and speak</div>
+          </div>
+          <div class="voice-hint">💬 Say <strong>"UPI"</strong>, <strong>"card"</strong>, or <strong>"cash"</strong> to choose · Say <strong>"confirm"</strong> to pay</div>
+          <div class="gaze-hint">👁️ Hover any payment option for 1.5s to select it · Then hover Confirm Payment</div>
+          
+          <div class="step-counter">Step 3 of 3 — Pay</div>
+          <div class="simplified-guide">💳 Choose how to pay</div>
+          
+          <nav aria-label="Breadcrumb" class="breadcrumb">
+            <span class="breadcrumb-step done">Menu</span><span aria-hidden="true">›</span>
+            <span class="breadcrumb-step done">Cart</span><span aria-hidden="true">›</span>
+            <span class="breadcrumb-step current" aria-current="step">Payment</span>
+          </nav>
+          
+          <h2 class="section-title" style="font-size:22px;margin-bottom:4px">Choose Payment</h2>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:18px">Amount: <strong id="pay-amount" style="color:var(--accent2)">₹0</strong></div>
+          
+          <div class="payment-methods" role="radiogroup" aria-label="Payment Methods">
+            <button class="payment-card gaze-el" role="radio" aria-checked="false" data-label="UPI payment" data-action="select-payment" data-type="upi">
+              <div class="gaze-bar"></div>
+              <div class="payment-card-icon" aria-hidden="true">📱</div>
+              <div class="payment-card-name">UPI / NFC Tap</div>
+              <div class="payment-card-sub">GPay, PhonePe</div>
+            </button>
+            <button class="payment-card gaze-el" role="radio" aria-checked="false" data-label="Card payment" data-action="select-payment" data-type="card">
+              <div class="gaze-bar"></div>
+              <div class="payment-card-icon" aria-hidden="true">💳</div>
+              <div class="payment-card-name">Debit / Credit Card</div>
+              <div class="payment-card-sub">Visa, RuPay</div>
+            </button>
+            <button class="payment-card gaze-el" role="radio" aria-checked="false" data-label="Cash payment" data-action="select-payment" data-type="cash">
+              <div class="gaze-bar"></div>
+              <div class="payment-card-icon" aria-hidden="true">💵</div>
+              <div class="payment-card-name">Cash</div>
+              <div class="payment-card-sub">Insert notes below</div>
+            </button>
+            <button class="payment-card gaze-el" role="radio" aria-checked="false" data-label="Wallet payment" data-action="select-payment" data-type="wallet">
+              <div class="gaze-bar"></div>
+              <div class="payment-card-icon" aria-hidden="true">🏦</div>
+              <div class="payment-card-name">Wallet / Voucher</div>
+              <div class="payment-card-sub">Tap loyalty card</div>
+            </button>
+          </div>
+
+          <div class="nfc-area" id="nfc-area" aria-hidden="true">
+            <div class="nfc-icon">📱<div class="nfc-ripple"></div><div class="nfc-ripple"></div></div>
+            <div style="font-size:15px;font-weight:600;margin-bottom:4px">Hold your phone here</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:14px">NFC active — UPI app will open automatically</div>
+            <button class="btn btn-success gaze-el" data-label="Confirm UPI payment" data-action="simulate-payment" style="width:auto;padding:10px 28px;margin-top:0">
+              <div class="gaze-bar"></div>Simulate Tap ✓
+            </button>
+          </div>
+
+          <button class="btn btn-primary gaze-el" data-label="Confirm payment" id="confirm-pay-btn" data-action="simulate-payment" style="display:none">
+            <div class="gaze-bar"></div>✓ Confirm Payment
+          </button>
+          <button class="btn btn-outline gaze-el" data-label="Back to cart" data-action="go-screen" data-target="screen-cart" style="margin-top:6px">
+            <div class="gaze-bar"></div>← Back to Cart
+          </button>
+        </article>
+
+        <!-- ══ SUCCESS ══ -->
+        <article class="screen" id="screen-success" aria-label="Success Screen">
+          <div class="success-anim">
+            <div class="success-circle" aria-hidden="true">✓</div>
+            <h2 class="success-title">Payment Successful!</h2>
+            <div class="success-amount" id="success-amount">₹0</div>
+            <div class="success-sub">Your order is being prepared. Thank you!</div>
+            <button class="btn btn-primary gaze-el" data-label="Start new order" data-action="reset-kiosk" style="max-width:240px;margin:0 auto">
+              <div class="gaze-bar"></div>Start New Order
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SIDE PANEL -->
+    <aside class="side-panel" aria-label="System status and features">
+      <section class="panel-card">
+        <h3 class="panel-header">AI Activity Log</h3>
+        <div class="panel-body">
+          <div class="log-list" id="log-list" aria-live="polite">
+            <div class="log-item action"><span class="log-time">00:00</span><span class="log-msg">Kiosk Vision initialized.</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel-card">
+        <h3 class="panel-header">Active Features</h3>
+        <div class="panel-body">
+          <div class="feature-list">
+            <div class="feature-row"><span class="feature-name">Voice TTS (output)</span><span class="feature-badge off" id="feat-tts">OFF</span></div>
+            <div class="feature-row"><span class="feature-name">Speech Recognition (input)</span><span class="feature-badge off" id="feat-asr">OFF</span></div>
+            <div class="feature-row"><span class="feature-name">Gaze Dwell-Click (all UI)</span><span class="feature-badge off" id="feat-gaze">OFF</span></div>
+            <div class="feature-row"><span class="feature-name">Simplified UI</span><span class="feature-badge off" id="feat-simple">OFF</span></div>
+            <div class="feature-row"><span class="feature-name">NFC Tap Payment</span><span class="feature-badge on">ON</span></div>
+            <div class="feature-row"><span class="feature-name">Currency CV</span><span class="feature-badge on">ON</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel-card">
+        <h3 class="panel-header">How This Works</h3>
+        <div class="panel-body" id="how-panel" style="font-size:13px;color:var(--muted);line-height:1.7">
+          Select a mode above to activate AI accessibility features.
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+</div>
+</body>
+</html>

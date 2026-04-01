@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kiosk Vision - Payment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#003824",
+              "on-surface": "#dae2fd",
+              "on-tertiary-fixed": "#2a1700",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed": "#6ffbbe",
+              "on-primary-fixed": "#0f0069",
+              "secondary": "#4edea3",
+              "surface": "#0b1326",
+              "on-background": "#dae2fd",
+              "surface-container-low": "#131b2e",
+              "tertiary": "#ffb95f",
+              "primary": "#c3c0ff",
+              "surface-tint": "#c3c0ff",
+              "on-secondary-container": "#00311f",
+              "on-tertiary-container": "#ffd4a4",
+              "on-primary-container": "#dad7ff",
+              "on-secondary-fixed": "#002113",
+              "error-container": "#93000a",
+              "background": "#0b1326",
+              "tertiary-container": "#885500",
+              "outline-variant": "#464555",
+              "tertiary-fixed-dim": "#ffb95f",
+              "inverse-surface": "#dae2fd",
+              "on-primary-fixed-variant": "#3323cc",
+              "inverse-on-surface": "#283044",
+              "surface-bright": "#31394d",
+              "primary-fixed": "#e2dfff",
+              "surface-container-lowest": "#060e20",
+              "on-tertiary-fixed-variant": "#653e00",
+              "secondary-fixed-dim": "#4edea3",
+              "on-error": "#690005",
+              "on-tertiary": "#472a00",
+              "error": "#ffb4ab",
+              "primary-fixed-dim": "#c3c0ff",
+              "surface-variant": "#2d3449",
+              "primary-container": "#4f46e5",
+              "surface-container-high": "#222a3d",
+              "surface-dim": "#0b1326",
+              "on-primary": "#1d00a5",
+              "on-secondary-fixed-variant": "#005236",
+              "surface-container-highest": "#2d3449",
+              "on-surface-variant": "#c7c4d8",
+              "tertiary-fixed": "#ffddb8",
+              "inverse-primary": "#4d44e3",
+              "secondary-container": "#00a572",
+              "surface-container": "#171f33",
+              "outline": "#918fa1"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-transition {
+            background: linear-gradient(to bottom, #131b2e, #0b1326);
+        }
+        .glass-panel {
+            background: rgba(79, 70, 229, 0.1);
+            backdrop-filter: blur(24px);
+        }
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(195, 192, 255, 0.7);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(195, 192, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(195, 192, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(195, 192, 255, 0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center w-full px-8 py-6 max-w-none bg-[#131b2e] no-border tonal-transition shadow-[0px_24px_48px_rgba(0,0,0,0.4)] fixed top-0 z-50">
+<div class="flex items-center gap-4">
+<span class="text-[#c3c0ff] font-black text-2xl tracking-tighter">Kiosk Vision</span>
+</div>
+<!-- Progress Indicator -->
+<nav class="hidden md:flex items-center gap-8">
+<div class="flex items-center gap-2 text-[#dae2fd] opacity-50">
+<span class="material-symbols-outlined">restaurant_menu</span>
+<span class="font-medium">Menu</span>
+</div>
+<div class="w-8 h-[2px] bg-outline-variant opacity-20"></div>
+<div class="flex items-center gap-2 text-[#dae2fd] opacity-50">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-medium">Cart</span>
+</div>
+<div class="w-8 h-[2px] bg-outline-variant opacity-20"></div>
+<div class="flex items-center gap-2 text-[#c3c0ff] font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span>Payment</span>
+</div>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-3 rounded-full hover:bg-[#222a3d] hover:scale-95 transition-all text-[#c3c0ff]">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="flex items-center justify-center p-3 rounded-full hover:bg-[#222a3d] hover:scale-95 transition-all text-[#c3c0ff]">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Side AI Assistant (AI Activity Log) -->
+<aside class="fixed left-0 top-24 bottom-24 w-80 flex flex-col z-40 bg-[#131b2e]/60 backdrop-blur-xl rounded-r-[3rem] shadow-2xl shadow-indigo-900/20 p-8 space-y-8">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<div class="w-3 h-3 rounded-full bg-secondary pulse-ring"></div>
+<h3 class="font-headline font-bold text-lg text-secondary">AI Assistant</h3>
+</div>
+<p class="text-sm text-on-surface/60 font-medium">Active &amp; Listening</p>
+</div>
+<div class="flex-grow space-y-6">
+<div class="space-y-4">
+<div class="p-4 rounded-lg bg-surface-container-high/50 border-l-4 border-primary">
+<p class="text-xs text-primary font-bold mb-1 uppercase tracking-widest">Vision Insight</p>
+<p class="text-sm leading-relaxed">User identified. Preferred payment: UPI/Digital.</p>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low">
+<p class="text-xs text-secondary font-bold mb-1 uppercase tracking-widest">System Log</p>
+<p class="text-sm leading-relaxed">Securing transaction gateway...</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<button class="flex items-center gap-4 p-6 rounded-[3rem] bg-[#4f46e5] text-[#dae2fd] shadow-lg shadow-indigo-500/40 transition-all scale-98 active:brightness-110">
+<span class="material-symbols-outlined">accessibility_new</span>
+<span class="font-medium">Standard</span>
+</button>
+<button class="flex items-center gap-4 p-6 rounded-[3rem] text-[#dae2fd] opacity-60 hover:bg-[#222a3d] transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+<span class="font-medium">Visual</span>
+</button>
+</nav>
+<button class="mt-auto w-full py-5 rounded-xl bg-error-container text-on-error-container font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+<span class="material-symbols-outlined">emergency_share</span>
+            Emergency Help
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-80 mt-24 h-[calc(100vh-6rem)] overflow-y-auto px-12 py-12 pb-32">
+<div class="max-w-5xl mx-auto">
+<header class="mb-12">
+<h1 class="text-5xl font-headline font-extrabold tracking-tight mb-4 text-primary">Choose Payment</h1>
+<p class="text-xl text-on-surface/70">Select your preferred method to complete the order of <span class="text-secondary font-bold">$42.50</span></p>
+</header>
+<!-- Payment Methods Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+<!-- UPI Option (Active State Simulation) -->
+<button class="relative group p-10 flex flex-col items-start gap-6 bg-primary-container text-on-primary-container rounded-xl shadow-2xl transition-all scale-100 ring-4 ring-primary ring-offset-8 ring-offset-surface">
+<div class="absolute top-6 right-6">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-4 rounded-2xl bg-white/10">
+<span class="material-symbols-outlined text-5xl">contactless</span>
+</div>
+<div class="text-left">
+<h3 class="text-2xl font-bold mb-2">UPI / NFC Tap</h3>
+<p class="text-on-primary-container/80 font-medium">Fast, secure mobile payments and tap-to-pay.</p>
+</div>
+</button>
+<button class="group p-10 flex flex-col items-start gap-6 bg-surface-container-high hover:bg-surface-container-highest transition-all rounded-xl border border-white/5">
+<div class="p-4 rounded-2xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-5xl">credit_card</span>
+</div>
+<div class="text-left">
+<h3 class="text-2xl font-bold mb-2">Debit / Credit Card</h3>
+<p class="text-on-surface/60 font-medium">Supports Visa, Mastercard, and RuPay.</p>
+</div>
+</button>
+<button class="group p-10 flex flex-col items-start gap-6 bg-surface-container-high hover:bg-surface-container-highest transition-all rounded-xl border border-white/5">
+<div class="p-4 rounded-2xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-5xl">payments</span>
+</div>
+<div class="text-left">
+<h3 class="text-2xl font-bold mb-2">Cash</h3>
+<p class="text-on-surface/60 font-medium">Insert banknotes and coins in the slot below.</p>
+</div>
+</button>
+<button class="group p-10 flex flex-col items-start gap-6 bg-surface-container-high hover:bg-surface-container-highest transition-all rounded-xl border border-white/5">
+<div class="p-4 rounded-2xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-5xl">account_balance_wallet</span>
+</div>
+<div class="text-left">
+<h3 class="text-2xl font-bold mb-2">Wallet / Voucher</h3>
+<p class="text-on-surface/60 font-medium">Redeem gift cards or digital balance.</p>
+</div>
+</button>
+</div>
+<!-- Dynamic NFC Area -->
+<div class="glass-panel rounded-xl p-12 flex flex-col items-center justify-center text-center gap-8 mb-12 border border-primary/20">
+<div class="relative">
+<div class="w-32 h-32 rounded-full bg-primary/20 flex items-center justify-center pulse-ring">
+<span class="material-symbols-outlined text-6xl text-primary">tap_and_play</span>
+</div>
+</div>
+<div>
+<h2 class="text-3xl font-bold mb-2">Ready to Scan</h2>
+<p class="text-on-surface/70 text-lg max-w-md mx-auto">Hold your phone or card near the contactless symbol on the kiosk frame.</p>
+</div>
+</div>
+<!-- Confirm Button -->
+<div class="flex justify-center mt-12">
+<button class="group px-16 py-8 bg-primary-container text-on-primary-container text-2xl font-extrabold rounded-full flex items-center gap-4 shadow-2xl hover:brightness-125 transition-all active:scale-95">
+                    Confirm Payment
+                    <span class="material-symbols-outlined text-3xl group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell (As per JSON requirements) -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-center gap-12 items-center px-12 pb-8 pt-4 bg-[#0b1326]/80 backdrop-blur-2xl tonal-shift-surface-container-low shadow-[0px_-24px_48px_rgba(0,0,0,0.3)] rounded-t-[3rem]">
+<div class="flex flex-col items-center justify-center text-[#dae2fd] opacity-50 px-8 py-4 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-3xl">restaurant_menu</span>
+<span class="font-headline text-sm font-semibold tracking-wide">Menu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#dae2fd] opacity-50 px-8 py-4 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-3xl">shopping_cart</span>
+<span class="font-headline text-sm font-semibold tracking-wide">Cart</span>
+</div>
+<!-- Active Payment Tab -->
+<div class="flex flex-col items-center justify-center bg-[#4f46e5] text-white rounded-[3rem] px-10 py-4 scale-110">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-headline text-sm font-semibold tracking-wide">Payment</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#dae2fd] opacity-50 px-8 py-4 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-3xl">check_circle</span>
+<span class="font-headline text-sm font-semibold tracking-wide">Success</span>
+</div>
+</footer>
+<!-- Accessibility FAB -->
+<button class="fixed bottom-32 left-8 z-[60] w-20 h-20 rounded-full bg-tertiary-fixed text-on-tertiary-fixed shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">accessibility</span>
+</button>
+</body></html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kiosk Vision - Menu Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#003824",
+              "on-surface": "#dae2fd",
+              "on-tertiary-fixed": "#2a1700",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed": "#6ffbbe",
+              "on-primary-fixed": "#0f0069",
+              "secondary": "#4edea3",
+              "surface": "#0b1326",
+              "on-background": "#dae2fd",
+              "surface-container-low": "#131b2e",
+              "tertiary": "#ffb95f",
+              "primary": "#c3c0ff",
+              "surface-tint": "#c3c0ff",
+              "on-secondary-container": "#00311f",
+              "on-tertiary-container": "#ffd4a4",
+              "on-primary-container": "#dad7ff",
+              "on-secondary-fixed": "#002113",
+              "error-container": "#93000a",
+              "background": "#0b1326",
+              "tertiary-container": "#885500",
+              "outline-variant": "#464555",
+              "tertiary-fixed-dim": "#ffb95f",
+              "inverse-surface": "#dae2fd",
+              "on-primary-fixed-variant": "#3323cc",
+              "inverse-on-surface": "#283044",
+              "surface-bright": "#31394d",
+              "primary-fixed": "#e2dfff",
+              "surface-container-lowest": "#060e20",
+              "on-tertiary-fixed-variant": "#653e00",
+              "secondary-fixed-dim": "#4edea3",
+              "on-error": "#690005",
+              "on-tertiary": "#472a00",
+              "error": "#ffb4ab",
+              "primary-fixed-dim": "#c3c0ff",
+              "surface-variant": "#2d3449",
+              "primary-container": "#4f46e5",
+              "surface-container-high": "#222a3d",
+              "surface-dim": "#0b1326",
+              "on-primary": "#1d00a5",
+              "on-secondary-fixed-variant": "#005236",
+              "surface-container-highest": "#2d3449",
+              "on-surface-variant": "#c7c4d8",
+              "tertiary-fixed": "#ffddb8",
+              "inverse-primary": "#4d44e3",
+              "secondary-container": "#00a572",
+              "surface-container": "#171f33",
+              "outline": "#918fa1"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar suppression for kiosk feel */
+        ::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col overflow-hidden select-none">
+<!-- TopAppBar -->
+<header class="bg-[#131b2e] shadow-[0px_24px_48px_rgba(0,0,0,0.4)] fixed top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-8 py-6">
+<div class="flex items-center gap-4">
+<span class="text-[#c3c0ff] font-black text-2xl tracking-tighter">Kiosk Vision</span>
+<div class="h-6 w-[2px] bg-outline-variant opacity-20 mx-2"></div>
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Step 1 of 3</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-[#dae2fd] opacity-70 hover:bg-[#222a3d] hover:scale-95 transition-all p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="flex items-center gap-2 text-[#dae2fd] opacity-70 hover:bg-[#222a3d] hover:scale-95 transition-all p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Layout Container -->
+<main class="flex-1 flex mt-24 mb-32 px-8 gap-8">
+<!-- SideNavBar / AI Assistant Activity -->
+<aside class="w-80 flex flex-col gap-6 sticky top-24 h-[calc(100vh-16rem)]">
+<!-- AI Profile Card -->
+<div class="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-r-[3rem] shadow-2xl shadow-indigo-900/20 flex flex-col gap-6 border-l-4 border-primary">
+<div>
+<h2 class="font-headline font-bold text-xl text-primary">AI Assistant</h2>
+<p class="text-on-surface-variant text-sm">Active &amp; Listening</p>
+</div>
+<nav class="flex flex-col gap-2">
+<!-- Standard Mode (Active) -->
+<div class="bg-[#4f46e5] text-[#dae2fd] rounded-[3rem] p-6 shadow-lg shadow-indigo-500/40 flex items-center gap-4 scale-105">
+<span class="material-symbols-outlined text-2xl" data-icon="accessibility_new">accessibility_new</span>
+<span class="font-medium">Standard</span>
+</div>
+<!-- Visual Mode -->
+<div class="text-[#dae2fd] opacity-60 p-6 hover:bg-[#222a3d] transition-colors rounded-[3rem] flex items-center gap-4">
+<span class="material-symbols-outlined text-2xl" data-icon="visibility">visibility</span>
+<span class="font-medium">Visual</span>
+</div>
+<!-- Cognitive Mode -->
+<div class="text-[#dae2fd] opacity-60 p-6 hover:bg-[#222a3d] transition-colors rounded-[3rem] flex items-center gap-4">
+<span class="material-symbols-outlined text-2xl" data-icon="psychology">psychology</span>
+<span class="font-medium">Cognitive</span>
+</div>
+<!-- Motor Mode -->
+<div class="text-[#dae2fd] opacity-60 p-6 hover:bg-[#222a3d] transition-colors rounded-[3rem] flex items-center gap-4">
+<span class="material-symbols-outlined text-2xl" data-icon="front_hand">front_hand</span>
+<span class="font-medium">Motor</span>
+</div>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<button class="w-full bg-error-container text-on-error-container py-4 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+                        Emergency Help
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Menu Content Canvas -->
+<section class="flex-1 overflow-y-auto pr-4">
+<header class="mb-10">
+<h1 class="text-5xl font-black text-on-surface tracking-tight mb-2">Choose your item</h1>
+<p class="text-xl text-on-surface-variant font-medium">Tap a category to explore our fresh daily selection.</p>
+</header>
+<!-- Bento Grid Menu Items -->
+<div class="grid grid-cols-2 gap-8 pb-12">
+<!-- Coffee Card -->
+<button class="group relative flex flex-col items-start text-left bg-surface-container-low rounded-xl p-8 transition-all hover:bg-surface-container-high active:scale-95 border-b-8 border-transparent hover:border-primary-container overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<span class="text-6xl mb-6 block drop-shadow-lg">☕</span>
+<h3 class="text-3xl font-bold text-on-surface mb-2">Coffee</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-6">Barista-crafted espresso, lattes, and seasonal brews.</p>
+<div class="mt-auto flex justify-between items-center w-full">
+<span class="text-2xl font-black text-secondary">from $3.50</span>
+<div class="bg-primary-container p-3 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+<!-- Sandwich Card -->
+<button class="group relative flex flex-col items-start text-left bg-surface-container-low rounded-xl p-8 transition-all hover:bg-surface-container-high active:scale-95 border-b-8 border-transparent hover:border-primary-container overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<span class="text-6xl mb-6 block drop-shadow-lg">🥪</span>
+<h3 class="text-3xl font-bold text-on-surface mb-2">Sandwich</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-6">Artisan breads filled with premium organic ingredients.</p>
+<div class="mt-auto flex justify-between items-center w-full">
+<span class="text-2xl font-black text-secondary">from $8.95</span>
+<div class="bg-primary-container p-3 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+<!-- Fresh Juice Card -->
+<button class="group relative flex flex-col items-start text-left bg-surface-container-low rounded-xl p-8 transition-all hover:bg-surface-container-high active:scale-95 border-b-8 border-transparent hover:border-primary-container overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<span class="text-6xl mb-6 block drop-shadow-lg">🥤</span>
+<h3 class="text-3xl font-bold text-on-surface mb-2">Fresh Juice</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-6">Cold-pressed daily with local fruits and vegetables.</p>
+<div class="mt-auto flex justify-between items-center w-full">
+<span class="text-2xl font-black text-secondary">from $6.50</span>
+<div class="bg-primary-container p-3 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+<!-- Snack Box Card -->
+<button class="group relative flex flex-col items-start text-left bg-surface-container-low rounded-xl p-8 transition-all hover:bg-surface-container-high active:scale-95 border-b-8 border-transparent hover:border-primary-container overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-error/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<span class="text-6xl mb-6 block drop-shadow-lg">🍱</span>
+<h3 class="text-3xl font-bold text-on-surface mb-2">Snack Box</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-6">Curated protein packs, nut mixes, and healthy sides.</p>
+<div class="mt-auto flex justify-between items-center w-full">
+<span class="text-2xl font-black text-secondary">from $12.00</span>
+<div class="bg-primary-container p-3 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+</div>
+</section>
+<!-- Right Side: AI Insights / Activity Log -->
+<aside class="w-96 flex flex-col gap-6">
+<div class="bg-surface-container-high rounded-xl p-8 flex flex-col gap-6 h-full shadow-xl">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary" data-icon="insights">insights</span>
+<h4 class="font-headline font-bold text-lg text-on-surface">AI Activity Log</h4>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-surface-container-highest/40 p-5 rounded-lg border-l-4 border-secondary">
+<p class="text-on-surface text-sm mb-1 font-semibold">Voice Command Detected</p>
+<p class="text-on-surface-variant text-xs italic">"Show me the healthiest options"</p>
+<p class="text-secondary text-[10px] mt-2 font-bold uppercase tracking-widest">Processing recommendation...</p>
+</div>
+<div class="bg-surface-container-highest/20 p-5 rounded-lg">
+<p class="text-on-surface-variant text-sm mb-1">Environment Scan</p>
+<p class="text-on-surface text-xs">Accessibility: Standard Optimized</p>
+</div>
+<div class="bg-surface-container-highest/20 p-5 rounded-lg">
+<p class="text-on-surface-variant text-sm mb-1">User Context</p>
+<p class="text-on-surface text-xs">Returning customer detected (Opt-in)</p>
+</div>
+</div>
+<div class="mt-auto">
+<div class="bg-primary/10 p-6 rounded-xl border border-primary/20">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-xs font-bold text-primary uppercase tracking-widest">Active Suggestion</span>
+</div>
+<p class="text-on-surface font-medium">Try our <span class="text-tertiary">Morning Glow</span> juice. It's popular at this time!</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- BottomNavBar / Checkout Anchor -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-12 pb-8 pt-6 bg-[#0b1326]/80 backdrop-blur-2xl shadow-[0px_-24px_48px_rgba(0,0,0,0.3)] rounded-t-[3rem]">
+<!-- Left: Accessibility FAB Persistent -->
+<button class="bg-tertiary-fixed text-on-tertiary-fixed px-8 py-5 rounded-xl flex items-center gap-3 shadow-lg hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined font-bold" data-icon="spatial_audio_off">spatial_audio_off</span>
+<span class="font-headline font-extrabold text-lg">Support Mode</span>
+</button>
+<!-- Center: Nav Indicators -->
+<div class="flex gap-12 items-center">
+<div class="flex flex-col items-center justify-center bg-[#4f46e5] text-white rounded-[3rem] px-10 py-4 scale-110 shadow-xl">
+<span class="material-symbols-outlined mb-1" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-['Inter'] text-sm font-semibold tracking-wide">Menu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#dae2fd] opacity-50 px-8 py-4 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined mb-1" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-['Inter'] text-sm font-semibold tracking-wide">Cart</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#dae2fd] opacity-50 px-8 py-4">
+<span class="material-symbols-outlined mb-1" data-icon="payments">payments</span>
+<span class="font-['Inter'] text-sm font-semibold tracking-wide">Payment</span>
+</div>
+</div>
+<!-- Right: Primary CTA -->
+<button class="bg-primary-container text-on-primary-container px-12 py-6 rounded-[3rem] flex items-center gap-4 shadow-2xl shadow-primary-container/40 hover:brightness-110 active:scale-95 transition-all">
+<div class="flex flex-col items-end">
+<span class="text-xs uppercase font-black tracking-widest opacity-70">Total: $0.00</span>
+<span class="text-xl font-headline font-black uppercase tracking-tighter">View Cart &amp; Checkout</span>
+</div>
+<span class="material-symbols-outlined text-3xl" data-icon="shopping_bag">shopping_bag</span>
+</button>
+</nav>
+<!-- Visual Embellishment: Organic Layering Background Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-20">
+<div class="absolute top-[10%] left-[-5%] w-[40vw] h-[40vw] bg-primary/20 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-5%] w-[50vw] h-[50vw] bg-secondary/10 rounded-full blur-[150px]"></div>
+</div>
+</body></html>
